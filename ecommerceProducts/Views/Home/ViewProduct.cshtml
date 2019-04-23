@@ -1,0 +1,87 @@
+﻿@using ecommerceProducts.data
+@model ViewProductViewModel
+
+<head>
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/shop-item.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+    <!-- Page Content -->
+    <div class="container">
+
+        <div class="row">
+
+            <div class="row">
+
+                <div class="col-md-3">
+                    <p class="lead">Categories</p>
+                    <div class="list-group">
+                        @foreach (Category c in Model.Categories)
+                        {
+                            <a href="/home/index?id=@c.Id" class="list-group-item">@c.Name</a>
+                        }
+
+                    </div>
+                </div>
+                <!-- /.col-lg-3 -->
+
+                <div class="col-lg-9">
+                    <div class="card mt-4">
+                        <img class="card-img-top img-fluid" style="height: 400px;" src="~/ProductImages/@Model.Product.Image" alt="">
+                        <div class="card-body">
+                            <h3 class="card-title">@Model.Product.Name</h3>
+                            <h4>@Model.Product.Price.ToString("C")</h4>
+                            <p class="card-text">@Model.Product.Description</p>
+                        </div>
+                    </div>
+                    <div>
+                        <select id="quantity" name="quantity" class="form-control">
+                            @for (int i = 1; i <= 10; i++)
+                            {
+                                <option>@i</option>
+                            }
+                        </select>
+                        <button id="cart-btn" class="btn btn-success" data-productid=@Model.Product.Id>Add To Cart</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- /.container -->
+    <!-- Bootstrap core JavaScript -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+<div id="view-cart-modal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Added to Cart!</h2>
+            </div>
+            <div class="modal-footer">
+                <a href="/home/index" class="btn btn-primary">Keep Shopping</a>
+                <a href="/home/shoppingcart" class="btn btn-secondary">View Cart</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/js/index.js"></script>
+}
+
+
+

@@ -5,39 +5,92 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ecommerceProducts.Models;
+using Microsoft.Extensions.Configuration;
+using ecommerceProducts.data;
+using Microsoft.AspNetCore.Http;
 
 namespace ecommerceProducts.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private string _connectionString;
+
+        private int cartId = 0;
+
+        public HomeController(IConfiguration configuration)
         {
-            return View();
+            _connectionString = configuration.GetConnectionString("ConStr");
+
         }
 
-        public IActionResult About()
+        public IActionResult Index(int? id)
         {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
+            IndexViewModel vm = new IndexViewModel();
+            ShoppingManager mgr = new ShoppingManager(_connectionString);
+            vm.Categories = mgr.GetAllCategories();
+            vm.Products = mgr.GetProductsForCategory(id);
+            return View(vm);
         }
 
-        public IActionResult Contact()
+        public IActionResult ViewProduct(int id)
         {
-            ViewData["Message"] = "Your contact page.";
+            ShoppingManager mgr = new ShoppingManager(_connectionString);
+            ViewProductViewModel vm = new ViewProductViewModel
+            {
+                Categories = mgr.GetAllCategories(),
+                Product = mgr.GetProduct(id)
+            };
 
-            return View();
+            return View(vm);
         }
 
-        public IActionResult Privacy()
+        [HttpPost]
+        public IActionResult AddToCart(CartItem i)
         {
-            return View();
+            ShoppingManager mgr = new ShoppingManager(_connectionString);
+
+            if (HttpContext.Session.GetString("cart") == null)
+            {
+                cartId = mgr.AddCart();
+                HttpContext.Session.SetString("cart", cartId.ToString());
+                i.CartId = cartId;
+            }
+            else
+            {
+                i.CartId = int.Parse(HttpContext.Session.GetString("cart"));
+            }
+
+            mgr.AddToCart(i);
+            return Json(i);
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public IActionResult ShoppingCart()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            ShoppingManager mgr = new ShoppingManager(_connectionString);
+            cartId = int.Parse(HttpContext.Session.GetString("cart"));
+            CartViewModel vm = new CartViewModel();
+            List<Product> products = mgr.GetProductsForCart(cartId);
+            IEnumerable<CheckoutItem> c = products.Select(p => new CheckoutItem { Product = p, Quantity = mgr.GetQuantityForProduct(cartId, p.Id) });
+            vm.CheckoutItems = c;
+            vm.CartId = cartId;
+            return View(vm);
         }
+
+        [HttpPost]
+        public IActionResult UpdateCart(CartItem c)
+        {
+            ShoppingManager mgr = new ShoppingManager(_connectionString);
+            mgr.UpdateCart(c);
+            return RedirectToAction("ShoppingCart");
+        }
+
+        [HttpPost]
+        public IActionResult DeleteFromCart(CartItem c)
+        {
+            ShoppingManager mgr = new ShoppingManager(_connectionString);
+            mgr.DeleteItem(c);
+            return Redirect("/home/shoppingcart");
+        }
+
     }
 }

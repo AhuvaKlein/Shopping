@@ -14,6 +14,8 @@ namespace ecommerceProducts
 {
     public class Startup
     {
+        public const string CookieScheme = "Admin";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -24,14 +26,13 @@ namespace ecommerceProducts
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
-
-
+            services.AddAuthentication(CookieScheme)
+               .AddCookie(CookieScheme, options =>
+               {
+                   options.AccessDeniedPath = "/admin/denied";
+                   options.LoginPath = "/admin/login";
+               });
+            services.AddSession();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
@@ -49,8 +50,9 @@ namespace ecommerceProducts
             }
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseStaticFiles();
-            app.UseCookiePolicy();
+            app.UseSession();
 
             app.UseMvc(routes =>
             {

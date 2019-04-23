@@ -1,0 +1,40 @@
+﻿@using ecommerceProducts.data
+@model CartViewModel
+
+<h1>My Cart</h1>
+
+<div class="row">
+    @foreach (CheckoutItem c in Model.CheckoutItems)
+    {
+        <div class="col-sm-4 col-lg-4 col-md-4">
+            <div class="thumbnail">
+                <img src="~/ProductImages/@c.Product.Image" alt="">
+                <div class="caption">
+                    <h4 class="pull-right">@c.Product.Price.ToString("C")</h4>
+                    <h4>
+                        <a href="/home/viewProduct?id=@c.Product.Id">@c.Product.Name</a>
+                    </h4>
+                    <form action="/home/updatecart" method="post">
+                        <input type="text" name="quantity" value=@c.Quantity />
+                        <input type="hidden" name="CartId" value=@Model.CartId />
+                        <input type="hidden" name="ProductId" value=@c.Product.Id />
+                        <button class="btn btn-primary">Update Item</button>
+                    </form>
+                    <form action="/home/deleteFromCart" method="post">
+                        <input type="hidden" name="CartId" value=@Model.CartId />
+                        <input type="hidden" name="ProductId" value=@c.Product.Id />
+                        <button class="btn btn-success">Delete Item</button>
+                    </form>
+
+                    @*<button class="btn btn-danger deleteitem" data-productid=@c.Product.Id data-cartid=@Model.CartId>Delete Item</button>*@
+
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section scripts{
+    <script src="~/js/index.js"></script>
+}
+

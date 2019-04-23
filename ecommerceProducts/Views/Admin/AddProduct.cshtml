@@ -1,0 +1,27 @@
+﻿@using ecommerceProducts.data
+@model IEnumerable<Category>
+
+
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <form action="/admin/submitProduct" method="post" enctype="multipart/form-data">
+            <input type="text" name="Name" placeholder="Product Name" class="form-control" />
+            <br />
+            <input type="text" name="Description" placeholder="Description" class="form-control" />
+            <br />
+            <input type="text" name="Price" placeholder="Price" class="form-control" />
+            <br />
+            <select name="CategoryId" class="form-control">
+                @foreach (Category c in Model)
+                {
+                    <option value=@c.Id>@c.Name</option>
+                }
+            </select>
+            <br />
+            <input type="file" name="ProductImage"/>
+            <br />
+            <button class="btn btn-danger">Add Product</button>
+        </form>
+    </div>
+</div>
+
