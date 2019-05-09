@@ -67,6 +67,10 @@ namespace ecommerceProducts.Controllers
         public IActionResult ShoppingCart()
         {
             ShoppingManager mgr = new ShoppingManager(_connectionString);
+            if (HttpContext.Session.GetString("cart") == null)
+            {
+                return Redirect("/home/index");
+            }
             cartId = int.Parse(HttpContext.Session.GetString("cart"));
             CartViewModel vm = new CartViewModel();
             List<Product> products = mgr.GetProductsForCart(cartId);
